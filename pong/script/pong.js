@@ -1,9 +1,13 @@
-(function () {
+//import EasyCanvas from "easycanvas.js";
+!function () {
     
     "use strict";
 
-    const canvas = document.querySelector("canvas");
+    const canvas = document.querySelector("#playArea");
     const ctx = canvas.getContext("2d");
+    const menu = document.querySelector("#menuArea");
+    const menuCtx = menu.getContext("2d");
+    const audio = Array.from(document.querySelectorAll("audio"));
     const green = "#17700d";
     const darkGreen = "#0d3f07";
     const paddleW = 25;
@@ -11,17 +15,21 @@
     const speed = 8;
     const winningScore = 11;
     const fontVT323 = "VT323";
+    const corners = EasyCanvas.getCornerPositions(canvas);
+    const center = EasyCanvas.getCenter(canvas);
     
+    let paused = false;
+    let playing = false;
+    let activateSpace = false;
     let ballSpeed = 2;
     let Paddle1;
     let Paddle2;
     let Ball;
+    
+    menu.style.top = corners.top + "px";
+    menu.style.left = corners.left + "px";
   
-    const center = {
-        x: canvas.width / 2,
-        y: canvas.height  / 2
-    }
-  
+    //init coords for paddles and ball
     const p1Start = {
         x: 25,
         y: (canvas.height / 2) - (paddleL / 2)
@@ -34,23 +42,22 @@
   
     const ballStart = {
         x: center.x,
-        y: center.y + 10
+        y: center.y + 10    //ball has a radius of 10, lower it by 10 to center it
     };
   
+    //inclusive random integer generator
     function random(min, max) {
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
-    function resetPos(paddle1, paddle2, ball) {
+    //sets the ball back in the center
+    function resetPos(ball) {
         ballSpeed = 2;
-//        paddle1.x = p1Start.x;
-//        paddle1.y = p1Start.y;
-//        paddle2.x = p2Start.x;
-//        paddle2.y = p2Start.y;
         ball.x = ballStart.x;
         ball.y = ballStart.y;
     }
   
+    //paddle constructor
     function Paddle(startX, startY) {
         this.x = startX;
         this.y = startY;
@@ -59,11 +66,7 @@
         this.score = 0;
     
         this.drawPaddle = ()=> {
-            ctx.beginPath();
-            ctx.rect(this.x, this.y, paddleW, paddleL);
-            ctx.fillStyle = green;
-            ctx.fill();
-            ctx.closePath();
+            EasyCanvas.drawRectNoBorder(ctx, this.x, this.y, paddleW, paddleL, green);
         };
     
         this.updatePosition =  ()=> {
@@ -77,15 +80,11 @@
         this.radius = 10;
         this.x = startX;
         this.y = startY;
-        this.dx = -ballSpeed;
-        this.dy = ballSpeed;
+        this.dx = ballSpeed * random(-1, 1);
+        this.dy = Math.sign(this.dx) === -1 ? ballSpeed : -ballSpeed;
     
         this.drawBall = ()=> {
-            ctx.beginPath();
-            ctx.arc(this.x, this.y, this.radius * 2, 0, Math.PI * 2);
-            ctx.fillStyle = green;
-            ctx.fill();
-            ctx.closePath;
+            EasyCanvas.drawCircleNoBorder(ctx, this.x, this.y, this.radius, green);
         },
       
         this.updatePosition = ()=> {
@@ -103,24 +102,28 @@
             //if the ball hits Paddle 1
             if((this.x - this.radius <= Paddle1.x + paddleW) 
                && ((this.y >= Paddle1.y) && (this.y <= Paddle1.y + paddleL - this.radius))) {
+                audio[0].play();
                 this.dx = ballSpeed;
             }
 
             //if the ball hits Paddle 2
             if((this.x + this.radius >= Paddle2.x) 
                && ((this.y >= Paddle2.y) && (this.y <= Paddle2.y + paddleL - this.radius))) {
+                audio[1].play();
                 this.dx = -ballSpeed;
             }
 
             //if the ball hits the left or right
             //score the game
             if(this.x - this.radius <= 0) {
-                resetPos(Paddle1, Paddle2, this);
+                resetPos(this);
+                audio[2].play();
                 Paddle2.score += 1;
             }
           
             if(this.x + this.radius >= canvas.width) {
-                resetPos(Paddle1, Paddle2, this);
+                resetPos(this);
+                audio[2].play();
                 Paddle1.score += 1;
             }
         }
@@ -131,43 +134,56 @@
         if(paddle.y > canvas.height - paddleL - 25) paddle.y = canvas.height - paddleL - 25;
     }
   
-    function clear() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-    }
-  
-    function setFont(fontsize, face) {
-        return `normal ${fontsize}pt ${face}`;
-    }
-  
-    function drawText(obj = {
-                      string: string, 
-                      fontsize: fontsize, 
-                      face: face, 
-                      color: color, 
-                      just: just, 
-                      x: x, 
-                      y: y
-                     }) {
-        ctx.font = setFont(obj.fontsize, obj.face);
-        ctx.fillStyle = obj.color;
-        ctx.textAlign = obj.just;
-        ctx.fillText(obj.string, obj.x, obj.y);
-    }
-  
     function drawGameLines() {
-        ctx.beginPath();
-        ctx.moveTo(canvas.width / 2, 0);
-        ctx.lineTo(canvas.width / 2, canvas.height);
-        ctx.lineWidth = 4;
-        ctx.strokeStyle = darkGreen;
-        ctx.stroke();
+        const lineProps = {
+            x: center.x,
+            y: 0,
+            dx: center.x,
+            dy: canvas.height,
+            lineWidth: 4,
+            color: darkGreen
+        }
+        EasyCanvas.drawLine(ctx, lineProps);
     }
   
     function drawScore() {
         const fontsize = 64;
-        ctx.font = setFont(fontsize, fontVT323);
+        ctx.font = EasyCanvas.setFont(fontsize, fontVT323);
         ctx.fillText(`${Paddle1.score}`, canvas.width / 4, fontsize);
         ctx.fillText(`${Paddle2.score}`, (canvas.width / 4) * 3, fontsize);
+    }
+
+    function togglePause() {
+        if(!paused) {
+            paused = true;
+            menu.style.display = "block";
+            menu.style.backgroundColor = "rgba(0, 0, 0, 0)";
+            const pauseProps = {
+                string: "Paused",
+                fontsize: 80,
+                face: fontVT323,
+                color: green,
+                just: "center",
+                x: center.x,
+                y: center.y
+            }
+            EasyCanvas.drawText(menuCtx, pauseProps);
+            const pauseSub = {
+                string: "Hit Esc or Space to contine",
+                fontsize: 24,
+                face: fontVT323,
+                color: green,
+                just: "center",
+                x: center.x,
+                y: center.y + 36
+            }
+            EasyCanvas.drawText(menuCtx, pauseSub);
+        } else {
+            paused = false;
+            menu.style.display = "none";
+            menu.style.backgroundColor = "rgba(0, 0, 0, 1)";
+            EasyCanvas.clearAll(canvas.width, canvas.height, menuCtx);
+        }
     }
   
     window.addEventListener("keydown", (e)=> {
@@ -194,7 +210,8 @@
     window.addEventListener("keyup", (e)=> {
         switch(e.key) {
             case " ":
-                startTwoPlayerGame();
+                if(activateSpace) startTwoPlayerGame();
+                if(paused) paused = false;
                 break;
             case "w":
                 if(!Paddle1) break;
@@ -212,6 +229,8 @@
                 if(!Paddle2) break;
                 Paddle2.movDn = 0;
                 break;
+            case "Escape":
+                togglePause();
         }
     });
     
@@ -219,20 +238,27 @@
         Paddle1 = new Paddle(p1Start.x, p1Start.y);
         Paddle2 = new Paddle(p2Start.x, p2Start.y);
         Ball = new Puck(ballStart.x, ballStart.y);
+        menu.style.display = "none";
+        EasyCanvas.clearAll(canvas.width, canvas.height, menuCtx);
         const gameLoop = setInterval(()=> {
-            clear();
+            activateSpace = false;
+            playing = true;
+            EasyCanvas.clearAll(canvas.width, canvas.height, ctx);
             drawGameLines();
             drawScore();
-            Paddle1.drawPaddle();
-            Paddle1.updatePosition();
-            Paddle2.drawPaddle();
-            Paddle2.updatePosition();
             Ball.drawBall();
-            Ball.updatePosition();
-            ballSpeed += 0.001;
+            Paddle1.drawPaddle();
+            Paddle2.drawPaddle();
+            if(!paused) {
+                Paddle1.updatePosition();
+                Paddle2.updatePosition();
+                Ball.updatePosition();
+                ballSpeed += 0.001;
+            }
             if((Paddle1.score >= winningScore) || (Paddle2.score >= winningScore)) {
+                menu.style.display = "block";
                 clearInterval(gameLoop);
-                clear();
+                EasyCanvas.clearAll(canvas.width, canvas.height, ctx, menuCtx);
                 const victoryString = Paddle1.score > Paddle2.score ? "Player 1 wins!" : "Player 2 wins!";
                 const victoryProps = {
                     string: victoryString,
@@ -243,7 +269,7 @@
                     x: center.x,
                     y: center.y
                 }
-                drawText(victoryProps);
+                EasyCanvas.drawText(menuCtx, victoryProps);
                 const playAgainProps = {
                     string: "Press Space to play again!",
                     fontsize: 24,
@@ -253,13 +279,15 @@
                     x: center.x,
                     y: center.y + 36
                 }
-                drawText(playAgainProps);
+                EasyCanvas.drawText(menuCtx, playAgainProps);
+                activateSpace = true;
+                playing = false;
             }
         }, 10);
     } 
   
     function drawWelcome() {
-        clear();
+        EasyCanvas.clearAll(canvas.width, canvas.height, ctx, menuCtx);
         const titleProps = {
             string: "Welcome to Pong!",
             fontsize: 80,
@@ -269,7 +297,7 @@
             x: center.x,
             y: center.y
         };
-        drawText(titleProps);
+        EasyCanvas.drawText(menuCtx, titleProps);
         const subProps = {
             string: "Hit [1] for Single Player and [2] for Two Player!",
             fontsize: 24,
@@ -279,7 +307,7 @@
             x: center.x,
             y: center.y + 36
         };
-        drawText(subProps);
+        EasyCanvas.drawText(menuCtx, subProps);
         const credits = {
             string: "Based on the game Pong by Allan Alcorn",
             fontsize: 12,
@@ -289,9 +317,9 @@
             x: canvas.width - 25,
             y: canvas.height - 25
         };
-        drawText(credits);
+        EasyCanvas.drawText(menuCtx, credits);
         const author = {
-            string: "Written in JavaScript by Jonathan C Kuhl",
+            string: "Written in JavaScript by Jonathan Kuhl",
             fontsize: 12,
             face: fontVT323,
             color: green,
@@ -299,9 +327,10 @@
             x: 25,
             y: canvas.height - 25
         };
-        drawText(author);
+        EasyCanvas.drawText(menuCtx, author);
+        activateSpace = true;
     }
   
     drawWelcome();
 
-})();
+}();

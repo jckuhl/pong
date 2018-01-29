@@ -12,19 +12,30 @@
             width: 100%;
         }
 
-        canvas {
+        #playArea {
             display: block;
             margin: 0 auto;
             background-color: black;
-            border: 1px solid black;
+        }
+        
+        #menuArea {
+            display: block;
+            position: absolute;
+            background-color: black;
         }
     </style>
     
     
     <div>
-        <canvas height="600" width="1000"></canvas>
+        <canvas height="600" width="1000" id="playArea"></canvas>
+        <canvas height="600" width="1000" id="menuArea"></canvas>
     </div>
     
+    <audio src="assets/Beep1.wav"></audio>
+    <audio src="assets/Beep2.wav"></audio>
+    <audio src="assets/Beep8.wav"></audio>
+    
+    <script src ="script/easycanvas.js"></script>
     <script src="script/pong.js"></script>
     
 </body>

@@ -22,6 +22,12 @@ let EasyCanvas = (function() {
         },
     }
     
+    exports.distance = function(x, y, dx, dy) {
+        return Math.sqrt(
+            Math.pow(((dx - x), 2) + ((dy - y), 2))
+        );
+    }
+    
     /**
     * Clears all contexts in width X, Y
     * @param {number} w - Width of the area being cleared
@@ -95,7 +101,7 @@ let EasyCanvas = (function() {
     }
     
     /**
-     * Draws text a line
+     * Draws a line
      * @param {CanvasRenderingContext2D} context - The rendering context for the canvas
      * @param {object} props - Line properties
      * @prop {number} x - start X position
@@ -119,6 +125,24 @@ let EasyCanvas = (function() {
         context.lineWidth = props.lineWidth;
         context.strokeStyle = props.color;
         context.stroke();    
+    }
+    
+    /**
+     * Draws a polygon of x sides
+     * @param {CanvasRenderingContext2D} context - The rendering context for the canvas
+     * @param {array} vertexMatrix - Array of objects with properties x and y
+     * @prop {string} color - Line color, defaults to black
+     */
+    exports.drawPolygon = function(context, vertexMatrix) {
+        context.beginPath();
+        for(let i = 0; i < vertexMatrix.length; i++) {
+            context.moveTo(vertexMatrix[i].x, vertexMatrix[i].y);
+            if(i + 1 < vertexMatrix) {
+                context.lineTo(vertexMatrix[i+k].x, vertexMatrix[i+k].y);
+            } else {
+                context.lineTo(vertexMatrix[0].x, vertexMatrix[0].y);
+            }
+        }
     }
     
     /**

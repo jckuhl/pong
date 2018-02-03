@@ -1,0 +1,9 @@
+@mixin center_block($w) {
+    display: block;
+    margin: 0 auto;
+    width: $w;
+}
+
+@mixin flexy() {
+    display: flex;
+}

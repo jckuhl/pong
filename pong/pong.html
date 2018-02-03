@@ -3,32 +3,40 @@
 <head>
     <title>Pong</title>
     <link href="https://fonts.googleapis.com/css?family=VT323" rel="stylesheet">
+    <link rel="stylesheet" href="style/css/style.css">
 </head>
     
 <body>
     
-    <style>
-        div {
-            width: 100%;
-        }
-
-        #playArea {
-            display: block;
-            margin: 0 auto;
-            background-color: black;
-        }
-        
-        #menuArea {
-            display: block;
-            position: absolute;
-            background-color: black;
-        }
-    </style>
+    <header>
+        <h1>Pong!</h1>
+        <p><a href="https://github.com/jckuhl/pong">View on Github!</a></p>
+    </header>
     
     
     <div>
         <canvas height="600" width="1000" id="playArea"></canvas>
         <canvas height="600" width="1000" id="menuArea"></canvas>
+    </div>
+    
+    <div class="wrapper">
+        <div>
+            <h1>Welcome to Pong!</h1>
+            
+            <p>Press [1] for Single Player, [2] for 2 player</p>
+            
+            <p>Controls:</p>
+            
+            <p>[W] and [S] for the player on the left</p>
+            
+            <p>[O] and [L] for the player on the right</p>
+            
+            <p>Pong is one of the oldest video games, developed by Atari in 1972.  Pong was designed by Alan Alcorn, an electrical engineer and computer scientist who worked for Atari.  Alcorn had no former experience in video games in the past and Pong was passed to him as a training exercise.</p>
+            
+            <p>Alcorn made further refinements to the game's design.  The ball would increase speed the longer it was in play, resetting each time a player missed.  The ball would change its angle depending on how it hit the paddle.  There was also a gap at the top and the bottom of the screen the paddles could not reach.  This was due to a defect in the circuitry, but Alcorn decided not to fix that gap so as to add more challenge to the game.  Alcorn used a sync pulse generator to create the game's distinctive sounds.</p>
+            
+            
+        </div>
     </div>
     
     <audio src="assets/Beep1.wav"></audio>

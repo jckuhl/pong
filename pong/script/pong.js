@@ -13,7 +13,7 @@
     const paddleW = 25;
     const paddleL = 125;
     const speed = 8;
-    const winningScore = 1;
+    const winningScore = 1000000;
     const fontVT323 = "VT323";
     const corners = EasyCanvas.getCornerPositions(canvas);
     const center = EasyCanvas.getCenter(canvas);
@@ -90,18 +90,19 @@
         };
         
         this.aiUpdatePosition = (ball)=> {
-            this.targetY = ball.y;
-            if(this.y + (paddleL / 2) > this.targetY) {
-                this.movUp = 8;
-                this.movDn = 0;
-            } else {
-                this.movUp = 0;
-                this.movDn = 8
+            if(ball.x > center.x) {
+                this.targetY = ball.y;
+                if(this.y + (paddleL / 2) > this.targetY) {
+                    this.y -= 8;
+//                    this.movDn = 0;
+                } else {
+//                    this.movUp = 0;
+                    this.y += 8
+                }
+                //this.y += -this.movUp + this.movDn;
+                constrain(this);
             }
-            this.y += -this.movUp + this.movDn;
-            constrain(this);
         }
- 
     }
   
     function Puck(startX, startY) {
@@ -121,7 +122,7 @@
             setTimeout(()=> {
                 this.color = green;
             }, 100);
-        }
+        }; //end glow()
       
         this.updatePosition = ()=> {
             this.x += this.dx;
@@ -184,7 +185,7 @@
             dy: canvas.height,
             lineWidth: 4,
             color: darkGreen
-        }
+        };
         EasyCanvas.drawLine(ctx, lineProps);
     }
   
@@ -214,7 +215,7 @@
             menu.style.display = "block";
             menu.style.backgroundColor = "rgba(0, 0, 0, 0)";
             displayMenuText("Paused", fontSize.Lg, center.x, center.y);
-            displayMenuText("Hit Esc or Space to contine", fontSize.Md, center.x, center.y + 36);
+            displayMenuText("Hit Esc or Space to continue", fontSize.Md, center.x, center.y + 36);
         } else {
             paused = false;
             menu.style.display = "none";
@@ -244,15 +245,21 @@
         }
     });
   
+    window.addEventListener("keypress", (e)=> {
+        if(e.keyCode === 32) {
+            e.view.event.preventDefault();
+            if(activateSpace) {
+                aiFlag = false;
+                startGame();
+            }
+            if(paused) {
+                togglePause();
+            }
+        }
+    });
+    
     window.addEventListener("keyup", (e)=> {
         switch(e.key) {
-            case " ":
-                if(activateSpace) {
-                    aiFlag = false;
-                    startGame();
-                }
-                if(paused) paused = false;
-                break;
             case "w":
                 if(!Paddle1) break;
                 Paddle1.movUp = 0;
@@ -292,7 +299,7 @@
             Paddle1.drawPaddle();
             Paddle2.drawPaddle();
             if(!paused) {
-                Paddle1.updatePosition();
+                Paddle1.updatePosition(Ball);
                 Paddle2.aiUpdatePosition(Ball);
                 Ball.updatePosition();
                 ballSpeed += 0.001;

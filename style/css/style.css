@@ -1,0 +1,41 @@
+* {
+  box-sizing: border-box; }
+
+body {
+  font-family: monospace;
+  background: #111;
+  color: green; }
+
+div {
+  width: 100%; }
+
+header {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  width: 100%; }
+  header h1 {
+    flex: 10 75%; }
+  header ul li {
+    display: inline-block; }
+
+#playArea {
+  display: block;
+  margin: 0 auto;
+  background-color: black; }
+
+#menuArea {
+  display: block;
+  position: absolute;
+  background-color: black; }
+
+.wrapper {
+  display: block;
+  margin: 0 auto;
+  width: 80%; }
+  .wrapper p {
+    color: #bbb;
+    line-height: 1.5em;
+    font-size: 1em; }
+
+/*# sourceMappingURL=style.css.map */

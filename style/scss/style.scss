@@ -1,0 +1,49 @@
+@import "mixins";
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: monospace;
+    background: #111;
+    color: green;
+}
+
+div {
+    width: 100%;
+}
+
+header {
+    @include flexy;
+    flex-wrap: nowrap;
+    align-items: center;
+    width: 100%;
+    h1 {
+        flex: 10 75%;
+    }
+    ul li {
+        display: inline-block;
+    }
+}
+
+#playArea {
+    display: block;
+    margin: 0 auto;
+    background-color: black;
+}
+
+#menuArea {
+    display: block;
+    position: absolute;
+    background-color: black;
+}
+
+.wrapper {
+    @include center-block(80%);
+    p {
+        color: #bbb;
+        line-height: 1.5em;
+        font-size: 1em;
+    }
+}

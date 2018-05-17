@@ -1,0 +1,11 @@
+{
+  "name": "pong",
+  "version": "1.0.0",
+  "description": "A game of pong",
+  "main": "./script/pong.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Jonathan Kuhl",
+  "license": "ISC"
+}

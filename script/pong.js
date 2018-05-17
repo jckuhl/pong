@@ -100,6 +100,11 @@ const EasyCanvas = require('./easycanvas');
                 constrain(this);
             }
         }
+
+        updatePosition() {
+            this.y += -this.movUp + this.movDn;
+            constrain(this);
+        };
     }
     
     

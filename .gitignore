@@ -1,5 +1,6 @@
 # Directories
-node_modueles/
+node_modules/
+node_modules/pb-easycanvas
 
 # files
 .DS_Store
